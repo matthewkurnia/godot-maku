@@ -90,6 +90,7 @@ public:
 		RID skeleton;
 		RID material_override;
 		RID material_overlay;
+		RID material_buffered;
 
 		// This is the main transform to be drawn with ..
 		// This will either be the interpolated transform (when using fixed timestep interpolation)

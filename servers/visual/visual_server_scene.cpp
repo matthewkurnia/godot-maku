@@ -2019,6 +2019,20 @@ void VisualServerScene::instance_geometry_set_material_overlay(RID p_instance, R
 		VSG::storage->material_add_instance_owner(instance->material_overlay, instance);
 	}
 }
+void VisualServerScene::instance_geometry_set_material_buffered(RID p_instance, RID p_material) {
+	Instance *instance = instance_owner.get(p_instance);
+	ERR_FAIL_COND(!instance);
+
+	if (instance->material_buffered.is_valid()) {
+		VSG::storage->material_remove_instance_owner(instance->material_buffered, instance);
+	}
+	instance->material_buffered = p_material;
+	instance->base_changed(false, true);
+
+	if (instance->material_buffered.is_valid()) {
+		VSG::storage->material_add_instance_owner(instance->material_buffered, instance);
+	}
+}
 
 void VisualServerScene::instance_geometry_set_draw_range(RID p_instance, float p_min, float p_max, float p_min_margin, float p_max_margin) {
 }
@@ -4573,6 +4587,7 @@ bool VisualServerScene::free(RID p_rid) {
 		instance_set_base(p_rid, RID());
 		instance_geometry_set_material_override(p_rid, RID());
 		instance_geometry_set_material_overlay(p_rid, RID());
+		instance_geometry_set_material_buffered(p_rid, RID());
 		instance_attach_skeleton(p_rid, RID());
 
 		update_dirty_instances(); //in case something changed this

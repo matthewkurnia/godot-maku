@@ -121,6 +121,7 @@ private:
 	ShadowCastingSetting shadow_casting_setting;
 	Ref<Material> material_override;
 	Ref<Material> material_overlay;
+	Ref<Material> material_buffered;
 	float lod_min_distance;
 	float lod_max_distance;
 	float lod_min_hysteresis;
@@ -162,6 +163,9 @@ public:
 
 	virtual void set_material_overlay(const Ref<Material> &p_material);
 	Ref<Material> get_material_overlay() const;
+
+	virtual void set_material_buffered(const Ref<Material> &p_material);
+	Ref<Material> get_material_buffered() const;
 
 	void set_extra_cull_margin(float p_margin);
 	float get_extra_cull_margin() const;

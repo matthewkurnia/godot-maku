@@ -1420,6 +1420,14 @@
 				Sets a material that will override the material for all surfaces on the mesh associated with this instance. Equivalent to [member GeometryInstance.material_override].
 			</description>
 		</method>
+		<method name="instance_geometry_set_material_buffered">
+			<return type="void" />
+			<argument index="0" name="instance" type="RID" />
+			<argument index="1" name="material" type="RID" />
+			<description>
+				Sets a material that will be rendered to a buffer. Equivalent to [member GeometryInstance.material_buffered].
+			</description>
+		</method>
 		<method name="instance_reset_physics_interpolation">
 			<return type="void" />
 			<argument index="0" name="instance" type="RID" />

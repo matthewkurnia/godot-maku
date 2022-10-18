@@ -664,6 +664,7 @@ public:
 	BIND2(instance_geometry_set_cast_shadows_setting, RID, ShadowCastingSetting)
 	BIND2(instance_geometry_set_material_override, RID, RID)
 	BIND2(instance_geometry_set_material_overlay, RID, RID)
+	BIND2(instance_geometry_set_material_buffered, RID, RID)
 
 	BIND5(instance_geometry_set_draw_range, RID, float, float, float, float)
 	BIND2(instance_geometry_set_as_instance_lod, RID, RID)
