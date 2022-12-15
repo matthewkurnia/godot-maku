@@ -2232,6 +2232,7 @@ void RasterizerStorageGLES3::_update_shader(Shader *p_shader) const {
 			p_shader->spatial.uses_vertex_lighting = false;
 			p_shader->spatial.uses_screen_texture = false;
 			p_shader->spatial.uses_depth_texture = false;
+			p_shader->spatial.uses_cbuffer = false;
 			p_shader->spatial.uses_vertex = false;
 			p_shader->spatial.uses_tangent = false;
 			p_shader->spatial.uses_ensure_correct_normals = false;
@@ -2271,6 +2272,7 @@ void RasterizerStorageGLES3::_update_shader(Shader *p_shader) const {
 			shaders.actions_scene.usage_flag_pointers["DISCARD"] = &p_shader->spatial.uses_discard;
 			shaders.actions_scene.usage_flag_pointers["SCREEN_TEXTURE"] = &p_shader->spatial.uses_screen_texture;
 			shaders.actions_scene.usage_flag_pointers["DEPTH_TEXTURE"] = &p_shader->spatial.uses_depth_texture;
+			shaders.actions_scene.usage_flag_pointers["CBUFFER"] = &p_shader->spatial.uses_cbuffer;
 			shaders.actions_scene.usage_flag_pointers["TIME"] = &p_shader->spatial.uses_time;
 
 			// Use of any of these BUILTINS indicate the need for transformed tangents.
@@ -6821,6 +6823,15 @@ void RasterizerStorageGLES3::_render_target_clear(RenderTarget *rt) {
 		rt->fbo = 0;
 	}
 
+	if (rt->cfbo) {
+		glDeleteFramebuffers(1, &rt->cfbo);
+		glDeleteTextures(1, &rt->cbuffer);
+		glDeleteTextures(1, &rt->cdepth);
+		rt->cfbo = 0;
+		rt->cbuffer = 0;
+		rt->cdepth = 0;
+	}
+
 	if (rt->buffers.active) {
 		glDeleteFramebuffers(1, &rt->buffers.fbo);
 		glDeleteRenderbuffers(1, &rt->buffers.depth);
@@ -6951,6 +6962,34 @@ void RasterizerStorageGLES3::_render_target_allocate(RenderTarget *rt) {
 	}
 
 	{
+		// Custom buffer
+		glActiveTexture(GL_TEXTURE0 + config.max_texture_image_units - 14);
+
+		glGenFramebuffers(1, &rt->cfbo);
+		glBindFramebuffer(GL_FRAMEBUFFER, rt->cfbo);
+
+		// depth
+		glGenTextures(1, &rt->cdepth);
+		glBindTexture(GL_TEXTURE_2D, rt->cdepth);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, rt->width, rt->height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, nullptr);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, rt->cdepth, 0);
+
+		// color
+		glGenTextures(1, &rt->cbuffer);
+		glBindTexture(GL_TEXTURE_2D, rt->cbuffer);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, rt->width, rt->height, 0, GL_RGBA, GL_UNSIGNED_INT, nullptr);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, rt->cbuffer, 0);
+
 		/* FRONT FBO */
 
 		glActiveTexture(GL_TEXTURE0);
@@ -6960,8 +6999,7 @@ void RasterizerStorageGLES3::_render_target_allocate(RenderTarget *rt) {
 
 		glGenTextures(1, &rt->depth);
 		glBindTexture(GL_TEXTURE_2D, rt->depth);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, rt->width, rt->height, 0,
-				GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, nullptr);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, rt->width, rt->height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, nullptr);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -7439,6 +7477,14 @@ void RasterizerStorageGLES3::render_target_set_external_texture(RID p_render_tar
 
 		ERR_FAIL_COND(status != GL_FRAMEBUFFER_COMPLETE);
 	}
+}
+
+// I might not even need this
+uint32_t RasterizerStorageGLES3::render_target_get_cbuffer_texture_id(RID p_render_target) const {
+	RenderTarget *rt = render_target_owner.getornull(p_render_target);
+	ERR_FAIL_COND_V(!rt, 0);
+
+	return rt->cbuffer;
 }
 
 void RasterizerStorageGLES3::render_target_set_flag(RID p_render_target, RenderTargetFlags p_flag, bool p_value) {

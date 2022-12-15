@@ -926,6 +926,7 @@ layout(location = 3) out float sss_buffer;
 
 in highp vec4 position_interp;
 uniform highp sampler2D depth_buffer; // texunit:-9
+uniform highp sampler2D cbuffer; // texunit:-14
 
 #ifdef USE_CONTACT_SHADOWS //ubershader-skip
 

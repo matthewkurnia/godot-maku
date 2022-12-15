@@ -516,6 +516,7 @@ public:
 			bool uses_sss;
 			bool uses_screen_texture;
 			bool uses_depth_texture;
+			bool uses_cbuffer;
 			bool uses_time;
 			bool uses_tangent;
 			bool uses_ensure_correct_normals;
@@ -1322,6 +1323,10 @@ public:
 		GLuint color;
 		GLuint depth;
 
+		GLuint cfbo;
+		GLuint cbuffer;
+		GLuint cdepth;
+
 		struct Buffers {
 			bool active;
 			bool effects_active;
@@ -1446,6 +1451,7 @@ public:
 	virtual RID render_target_get_texture(RID p_render_target) const;
 	virtual uint32_t render_target_get_depth_texture_id(RID p_render_target) const;
 	virtual void render_target_set_external_texture(RID p_render_target, unsigned int p_texture_id, unsigned int p_depth_id);
+	virtual uint32_t render_target_get_cbuffer_texture_id(RID p_render_target) const; // I might not even need this
 
 	virtual void render_target_set_flag(RID p_render_target, RenderTargetFlags p_flag, bool p_value);
 	virtual bool render_target_was_used(RID p_render_target);
