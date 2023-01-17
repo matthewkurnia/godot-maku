@@ -2041,6 +2041,7 @@ void VisualServer::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("particles_set_amount", "particles", "amount"), &VisualServer::particles_set_amount);
 	ClassDB::bind_method(D_METHOD("particles_set_lifetime", "particles", "lifetime"), &VisualServer::particles_set_lifetime);
 	ClassDB::bind_method(D_METHOD("particles_set_one_shot", "particles", "one_shot"), &VisualServer::particles_set_one_shot);
+	ClassDB::bind_method(D_METHOD("particles_set_persistent", "particles", "persistent"), &VisualServer::particles_set_persistent);
 	ClassDB::bind_method(D_METHOD("particles_set_pre_process_time", "particles", "time"), &VisualServer::particles_set_pre_process_time);
 	ClassDB::bind_method(D_METHOD("particles_set_explosiveness_ratio", "particles", "ratio"), &VisualServer::particles_set_explosiveness_ratio);
 	ClassDB::bind_method(D_METHOD("particles_set_randomness_ratio", "particles", "ratio"), &VisualServer::particles_set_randomness_ratio);

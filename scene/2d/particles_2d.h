@@ -49,6 +49,7 @@ private:
 	RID particles;
 
 	bool one_shot;
+	bool persistent;
 	int amount;
 	float lifetime;
 	float pre_process_time;
@@ -81,6 +82,7 @@ protected:
 public:
 	void set_emitting(bool p_emitting);
 	void set_amount(int p_amount);
+	void set_persistent(bool p_persistent);
 	void set_lifetime(float p_lifetime);
 	void set_one_shot(bool p_enable);
 	void set_pre_process_time(float p_time);
@@ -97,6 +99,7 @@ public:
 
 	bool is_emitting() const;
 	int get_amount() const;
+	bool get_persistent() const;
 	float get_lifetime() const;
 	bool get_one_shot() const;
 	float get_pre_process_time() const;

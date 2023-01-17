@@ -53,6 +53,12 @@ void Particles2D::set_amount(int p_amount) {
 	amount = p_amount;
 	VS::get_singleton()->particles_set_amount(particles, amount);
 }
+
+void Particles2D::set_persistent(bool p_persistent) {
+	persistent = p_persistent;
+	VS::get_singleton()->particles_set_persistent(particles, persistent);
+}
+
 void Particles2D::set_lifetime(float p_lifetime) {
 	ERR_FAIL_COND_MSG(p_lifetime <= 0, "Particles lifetime must be greater than 0.");
 	lifetime = p_lifetime;
@@ -155,6 +161,9 @@ int Particles2D::get_amount() const {
 }
 float Particles2D::get_lifetime() const {
 	return lifetime;
+}
+bool Particles2D::get_persistent() const {
+	return persistent;
 }
 
 bool Particles2D::get_one_shot() const {
@@ -334,6 +343,7 @@ void Particles2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_amount", "amount"), &Particles2D::set_amount);
 	ClassDB::bind_method(D_METHOD("set_lifetime", "secs"), &Particles2D::set_lifetime);
 	ClassDB::bind_method(D_METHOD("set_one_shot", "secs"), &Particles2D::set_one_shot);
+	ClassDB::bind_method(D_METHOD("set_persistent", "enable"), &Particles2D::set_persistent);
 	ClassDB::bind_method(D_METHOD("set_pre_process_time", "secs"), &Particles2D::set_pre_process_time);
 	ClassDB::bind_method(D_METHOD("set_explosiveness_ratio", "ratio"), &Particles2D::set_explosiveness_ratio);
 	ClassDB::bind_method(D_METHOD("set_randomness_ratio", "ratio"), &Particles2D::set_randomness_ratio);
@@ -347,6 +357,7 @@ void Particles2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("is_emitting"), &Particles2D::is_emitting);
 	ClassDB::bind_method(D_METHOD("get_amount"), &Particles2D::get_amount);
 	ClassDB::bind_method(D_METHOD("get_lifetime"), &Particles2D::get_lifetime);
+	ClassDB::bind_method(D_METHOD("get_persistent"), &Particles2D::get_persistent);
 	ClassDB::bind_method(D_METHOD("get_one_shot"), &Particles2D::get_one_shot);
 	ClassDB::bind_method(D_METHOD("get_pre_process_time"), &Particles2D::get_pre_process_time);
 	ClassDB::bind_method(D_METHOD("get_explosiveness_ratio"), &Particles2D::get_explosiveness_ratio);
@@ -376,6 +387,7 @@ void Particles2D::_bind_methods() {
 	ADD_GROUP("Time", "");
 	ADD_PROPERTY(PropertyInfo(Variant::REAL, "lifetime", PROPERTY_HINT_RANGE, "0.01,600.0,0.01,or_greater"), "set_lifetime", "get_lifetime");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "one_shot"), "set_one_shot", "get_one_shot");
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "persistent"), "set_persistent", "get_persistent");
 	ADD_PROPERTY(PropertyInfo(Variant::REAL, "preprocess", PROPERTY_HINT_RANGE, "0.00,600.0,0.01"), "set_pre_process_time", "get_pre_process_time");
 	ADD_PROPERTY(PropertyInfo(Variant::REAL, "speed_scale", PROPERTY_HINT_RANGE, "0,64,0.01"), "set_speed_scale", "get_speed_scale");
 	ADD_PROPERTY(PropertyInfo(Variant::REAL, "explosiveness", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_explosiveness_ratio", "get_explosiveness_ratio");
@@ -400,6 +412,7 @@ Particles2D::Particles2D() {
 	particles = RID_PRIME(VS::get_singleton()->particles_create());
 
 	one_shot = false; // Needed so that set_emitting doesn't access uninitialized values
+	persistent = false;
 	set_emitting(true);
 	set_one_shot(false);
 	set_amount(8);

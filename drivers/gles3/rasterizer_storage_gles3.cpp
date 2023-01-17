@@ -6221,6 +6221,12 @@ void RasterizerStorageGLES3::particles_set_amount(RID p_particles, int p_amount)
 	memdelete_arr(data);
 }
 
+void RasterizerStorageGLES3::particles_set_persistent(RID p_particles, bool p_persistent) {
+	Particles *particles = particles_owner.getornull(p_particles);
+	ERR_FAIL_COND(!particles);
+	particles->persistent = p_persistent;
+}
+
 void RasterizerStorageGLES3::particles_set_lifetime(RID p_particles, float p_lifetime) {
 	Particles *particles = particles_owner.getornull(p_particles);
 	ERR_FAIL_COND(!particles);
@@ -6454,7 +6460,11 @@ RID RasterizerStorageGLES3::particles_get_draw_pass_mesh(RID p_particles, int p_
 }
 
 void RasterizerStorageGLES3::_particles_process(Particles *p_particles, float p_delta) {
-	float new_phase = Math::fmod((float)p_particles->phase + (p_delta / p_particles->lifetime) * p_particles->speed_scale, (float)1.0);
+	// persistent particle doesn't have their phase reset
+	float new_phase = (float)p_particles->phase + (p_delta / p_particles->lifetime) * p_particles->speed_scale;
+	if (!p_particles->persistent) {
+		new_phase = Math::fmod(new_phase, (float)1.0);
+	}
 
 	if (p_particles->clear) {
 		p_particles->cycle_number = 0;
